@@ -1,16 +1,8 @@
-console.log('gg');
-const main = document.querySelector('#main');
-const bt = document.querySelector('#bt');
+const stashBt = document.querySelector('#bt');
+const stashBt2 = document.querySelector('#bt2');
 
-function click() {
-    chrome.tabs.query({}, function (tabs) {
-        tabs.forEach(function (tab) {
-            if (tab.url !== 'chrome://newtab/')
-                chrome.tabs.get(tab.id, function (e) {
-                    console.log(e)
-                })
-        });
-    });
-}
+// 注册按钮
+stashBt.addEventListener('click', stash);
+stashBt2.addEventListener('click', getItems);
 
-bt.addEventListener('click', click);
+init();
