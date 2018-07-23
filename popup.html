@@ -1,20 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+  <head>
     <meta charset="UTF-8">
     <title>Title</title>
-    <style>
-        #main{
-            width: 500px;
-        }
-    </style>
-</head>
-<body>
-    <h1>Popup</h1>
-    <ul id="main"></ul>
-    <button id="bt">stash</button>
-    <button id="bt2">getItems</button>
-    <script src="showItems.js"></script>
+    <link rel="stylesheet" href="./popup.css">
+  </head>
+  <body>
+    <h1 class="title">Stash Pages</h1>
+    <ul id="main" class="stash-list"></ul>
+    <div class="stash-bar">
+      <input class="title-input" id="title-input" type="text" placeholder="please input title">
+      <button id="stash">stash</button>
+    </div>
     <script src="popup.js"></script>
-</body>
+  </body>
 </html>
