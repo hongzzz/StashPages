@@ -9,31 +9,22 @@ const showItems = async () => {
         let li = document.createElement('li');
         li.className = 'stash-item';
         li.innerHTML = `<div class="stash-title">${item.title}</div>
-                        <div class="stash-time">${item.tabs.length} tabs---${new Date(item.time).toLocaleString()}</div>`;
+                        <div class="stash-desc">${item.tabs.length} pages -- ${timeago().format(item.time)}</div>`;
 
-        let popButton = document.createElement('button');
-        popButton.className = 'pop-button';
-        popButton.innerHTML = 'Pop';
-        popButton.addEventListener('click', function (e) {
-            e.stopPropagation();
-            deleteItem(item);
-        });
-        let delButton = document.createElement('button');
+        let delButton = document.createElement('div');
         delButton.className = 'del-button';
-        delButton.innerHTML = 'Del';
+        delButton.innerHTML = 'DEL';
         delButton.addEventListener('click', function (e) {
             e.stopPropagation();
             deleteItem(item);
         });
-
-        li.appendChild(popButton);
         li.appendChild(delButton);
         li.addEventListener('click', function () {
-            deleteItem(item);
+            popItem(item);
         });
         main.appendChild(li);
     }
-}
+};
 
 // 获取当前标签页
 const getTabs = () => {
@@ -41,23 +32,30 @@ const getTabs = () => {
     return new Promise(resolve => {
         chrome.tabs.query({}, function (tabs) {
             tabs.map((tab, index) => {
-                // 排除空标签页
-                if (tab.url !== 'chrome://newtab/') {
-                    arr.push({ title: tab.title, url: tab.url });
-                }
+                arr.push({ title: tab.title, url: tab.url, id: tab.id });
             });
             resolve(arr);
         });
+    });
+};
+
+const closeTabs = (arr) => {
+    let idArr = [];
+    arr.map((t, index) => {
+        idArr.push(t.id);
+    });
+    // 创建新标签页
+    chrome.tabs.create({ url: 'chrome://newtab/' }, function () {});
+    // 关闭tabs
+    chrome.tabs.remove(idArr, function () {
     });
 }
 
 // 获取stash
 const getItems = async () => {
-    console.log('get items start');
     let items = [];
     return new Promise(resolve => {
         chrome.storage.sync.get(null, function (result) {
-            console.log(result);
             for (let key in result) {
                 if (key.startsWith('item_')) {
                     items.push(result[key]);
@@ -70,35 +68,33 @@ const getItems = async () => {
             resolve(items);
         });
     });
-}
+};
 
 // 设置stash
 const setItem = (item) => {
     let itemStr = `item_${item.time}`;
     return new Promise(resolve => {
         chrome.storage.sync.set({ [itemStr]: item }, function () {
-            console.log('set item');
-            console.log(item);
             init();
             resolve();
         });
     });
-}
+};
 
 // 删除
 const deleteItem = (item) => {
     let itemStr = `item_${item.time}`;
     return new Promise(resolve => {
         chrome.storage.sync.remove([itemStr], function () {
-            console.log('removed ' + itemStr);
             init();
             resolve();
         });
     });
-}
+};
 
 const stash = async () => {
     let arr = await getTabs();
+
     // 标签页不为空才进行stash
     if (arr.length !== 0) {
         // 根据时间戳创建独一对象
@@ -108,16 +104,24 @@ const stash = async () => {
             title: title,
             time: +new Date()
         };
-        return await setItem(item);
+        await setItem(item);
+        closeTabs(arr);
     }
-}
+};
+const popItem = (item) => {
+    let itemStr = `item_${item.time}`;
+    item.tabs.map((tab, index) => {
+        chrome.tabs.create({ url: tab.url }, function () {
+        });
+    });
+    deleteItem(item);
+};
 
-async function init () {
-    console.log('init');
+const init = async () => {
     main.innerHTML = '';
     await showItems();
     titleInput.focus();
-}
+};
 
 
 // 注册按钮
