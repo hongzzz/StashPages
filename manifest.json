@@ -2,11 +2,10 @@
     "name": "Stash Pages",
     "version": "1.0",
     "description": "Stash Pages",
-    "homepage_url": "https://github.com/hongzzz",
+    "homepage_url": "https://github.com/hongzzz/StashPages",
     "permissions": [
         "storage",
-        "tabs",
-        "unlimitedStorage"
+        "tabs"
     ],
     "background": {
         "scripts": [
